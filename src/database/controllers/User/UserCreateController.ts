@@ -1,29 +1,17 @@
-import { PrismaClient } from "@prisma/client";
+import { GenericResponse } from "../../../@types/controllers/controllers";
 import { Connection } from "../../connection";
 import { User } from "../../models/User";
 
-interface UserReturn {
-  name: string;
-  email: string;
-}
-
-interface ResponseUserCreate {
-  success: "success" | "fail";
-  obj?: UserReturn;
-  msg: string;
-  err?: any;
-}
-
 export class UserCreateController {
-  private connection;
+  private connection: Connection;
 
   constructor () {
-    this.connection = new PrismaClient();
+    this.connection = Connection.getInstance();
   }
 
-  public async insert (user: User): Promise<ResponseUserCreate> {
+  public async insert (user: User): Promise<GenericResponse> {
     try {  
-      await this.connection.$executeRawUnsafe(
+      await this.connection.db.$executeRawUnsafe(
         `INSERT INTO User (name, email, password) VALUES('${user.username}',
         '${user.userEmail}',
         '${user.userPassword}');`
@@ -31,7 +19,7 @@ export class UserCreateController {
       
       return {
         msg: `User '${user.username}', was created`,
-        success: "success",
+        status: "success",
         obj: {
           name: user.username,
           email: user.userEmail
@@ -41,7 +29,7 @@ export class UserCreateController {
     } catch (err) {
       return {
         msg: "Houve um erro no sistema!",
-        success: "fail",
+        status: "fail",
         err,
 
       }
