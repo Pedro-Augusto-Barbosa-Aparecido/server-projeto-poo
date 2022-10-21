@@ -4,6 +4,7 @@ import { Connection } from "../../connection";
 import { NUllishParameters } from "../../exceptions/funcExceptions";
 import { User } from "../../models/User";
 import { Formatter } from '../../utils/formatter';
+import { generateHash } from '../../utils/password';
 
 interface UserUpdateControllerProps {
   userId?: string;
@@ -39,6 +40,9 @@ export class UserUpdateController {
 
   public async update (newValues: UserUpdateParams) {
     try {
+      if (newValues["password"])
+        newValues.password = await generateHash(newValues.password);
+
       const user = await this.connection.db.$executeRawUnsafe(
         `UPDATE User SET ${Formatter.formatUpdateAndCreateQuery(newValues)} 
         WHERE ${this.getFilterQuery()};`
