@@ -1,8 +1,15 @@
-import { IUserRequest } from './../../../@types/controllers/requests.d';
 import { generateHash } from './../../utils/password';
-import { Request, Response, Router } from "express";
+import { 
+  Request, 
+  Response, 
+  Router 
+} from "express";
 import { UserCreateController } from "../../controllers/User/UserCreateController";
 import { User } from "../../models/User";
+import { 
+  UserUpdateController, 
+  UserUpdateParams 
+} from '../../controllers/User/UserUpdateController';
 
 const userRoutes = Router();
 
@@ -24,7 +31,21 @@ userRoutes.post("/user", async (req: Request, res: Response) => {
       err
     })
   }
+});
 
+userRoutes.put("/user/:id", async (req: Request, res: Response) => {
+  const userId = req.params.id!;
+  const valuesToUpdate = req.body as UserUpdateParams; 
+  const userUpdateController = new UserUpdateController({ userId });
+  
+  try {
+    const result = await userUpdateController.update(valuesToUpdate);
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({
+      err
+    });
+  }
 
 });
 

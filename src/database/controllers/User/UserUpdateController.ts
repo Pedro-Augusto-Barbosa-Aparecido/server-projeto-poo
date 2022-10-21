@@ -1,21 +1,22 @@
-import { Formatter } from './../generics/Formatter';
+import { IBaseFormatter } from './../../../@types/controllers/generics/formatter.d';
 import { GenericResponse } from "../../../@types/controllers/controllers";
 import { Connection } from "../../connection";
 import { NUllishParameters } from "../../exceptions/funcExceptions";
 import { User } from "../../models/User";
+import { Formatter } from '../../utils/formatter';
 
 interface UserUpdateControllerProps {
   userId?: string;
   userEmail?: string; 
 }
 
-interface UserUpdateParams {
+export interface UserUpdateParams {
   name?: string;
   email?: string;
   password?: string;
 }
 
-export class UserUpdateController implements Formatter {
+export class UserUpdateController {
   private connection: Connection;
   private userId?: string;
   private userEmail?: string;
@@ -36,20 +37,17 @@ export class UserUpdateController implements Formatter {
     return `email = ${this.userEmail}`;
   }
 
-  public cleanObject: (obj: Object) => string;
-
-  public async update (newValues: UserUpdateParams): Promise<GenericResponse> {
+  public async update (newValues: UserUpdateParams) {
     try {
-      
-
-
       const user = await this.connection.db.$executeRawUnsafe(
-        `UPDATE User SET  WHERE ${this.getFilterQuery()}`
+        `UPDATE User SET ${Formatter.formatUpdateAndCreateQuery(newValues)} 
+        WHERE ${this.getFilterQuery()};`
       );
 
       return {
         msg: "User was updated",
-        status: "success"
+        status: "success",
+        user
       }
     } catch (err) {
       return {
@@ -58,6 +56,5 @@ export class UserUpdateController implements Formatter {
         err
       }
     }
-
   }
 }
