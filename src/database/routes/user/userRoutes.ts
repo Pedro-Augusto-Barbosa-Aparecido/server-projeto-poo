@@ -10,6 +10,7 @@ import {
   UserUpdateController, 
   UserUpdateParams 
 } from '../../controllers/User/UserUpdateController';
+import { UserGetController } from '../../controllers/User/UserGetController';
 
 const userRoutes = Router();
 
@@ -47,6 +48,22 @@ userRoutes.put("/user/:id", async (req: Request, res: Response) => {
     });
   }
 
+});
+
+userRoutes.get("/user/:id", async (req: Request, res: Response) => {
+  const userGetController = new UserGetController();
+  const id = req.params.id as string;
+
+  try {
+    const result = await userGetController.get({
+      id: parseInt(id)
+    });
+    return res.json(result);
+  } catch (err) {
+    return res.status(500).json({
+      err
+    });
+  }
 });
 
 export default userRoutes;
